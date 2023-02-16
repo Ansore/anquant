@@ -1,0 +1,33 @@
+{
+    "SERVER_ID": "okx",
+    "RABBITMQ": {
+        "host": "91.151.93.110",
+        "port": 5672,
+        "username": "ansore",
+        "password": "ansore"
+    },
+    "HEARTBEAT": {
+        "print_interval": 5
+    },
+    "PROXY": "http://127.0.0.1:1089",
+    "PLATFORMS": {
+        "okx": {
+            "simulate": true,
+            "account": {
+                "access_key": "c2409e65-d277-4d63-8b94-5b961d6c1b41",
+                "secret_key": "E6E36CEBC5FE0418D6C311C3E7986ED1",
+                "passphrase": "171789512.Xiang"
+            },
+            "market": {
+                "wss": "wss://wspap.okx.com:8443/ws/v5/public?brokerId=9999",
+                "subscribes": [ {
+                    "symbols": ["BTC-USDT"],
+                    "channels": ["ticker", "kline1min"]
+                    }
+                ]
+            }
+        }
+    },
+    "strategy": "my_test_strategy",
+    "symbol": "ETH/BTC"
+}

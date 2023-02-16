@@ -1,0 +1,5 @@
+.idea
+dist
+venv
+anquant.egg-info
+**/__pycache__

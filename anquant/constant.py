@@ -1,0 +1,29 @@
+# -*- coding:utf-8 -*-
+
+OKX = "okx"
+BINANCE = "binance"
+
+
+# market
+MARKET_TYPE_TICKER = "ticker"
+MARKET_TYPE_TRADE = "trade"
+MARKET_TYPE_KLINE = "kline"
+MARKET_TYPE_ORDERBOOK = "orderbook"
+
+MARKET_KLINE_KLINE_1M = "kline1m"
+MARKET_KLINE_KLINE_1W = "kline1w"
+MARKET_KLINE_KLINE_1D = "kline1d"
+MARKET_KLINE_KLINE_2D = "kline2d"
+MARKET_KLINE_KLINE_3D = "kline3d"
+MARKET_KLINE_KLINE_5D = "kline5d"
+MARKET_KLINE_KLINE_1H = "kline1h"
+MARKET_KLINE_KLINE_2H = "kline2h"
+MARKET_KLINE_KLINE_4H = "kline4h"
+MARKET_KLINE_KLINE_6H = "kline6h"
+MARKET_KLINE_KLINE_12H = "kline12h"
+MARKET_KLINE_KLINE_1MIN = "kline1min"
+MARKET_KLINE_KLINE_3MIN = "kline3min"
+MARKET_KLINE_KLINE_5MIN = "kline5min"
+MARKET_KLINE_KLINE_15MIN = "kline15min"
+MARKET_KLINE_KLINE_30MIN = "kline30min"
+
