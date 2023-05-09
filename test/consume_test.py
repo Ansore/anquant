@@ -3,14 +3,17 @@ from anquant.constant import OKX
 from anquant.data import KlineStorage
 from anquant.market import Market, Kline, Trade, Orderbook
 from anquant.utils.mongo import initMongoDB
+from anquant.config import Config
+
 
 def consume():
     initMongoDB("91.151.93.110", 27017, "ansore", "ansore")
     ks = KlineStorage(OKX)
 
     async def callback(k: Kline):
-        print("save kline:", k.symbol, "-", str(k.timestamp), "-", str(k.high))
-        await ks.save_kline(k)
+        print(k)
+        # print("save kline:", k.symbol, "-", str(k.timestamp), "-", str(k.high))
+        # await ks.save_kline(k)
 
     Market(constant.MARKET_TYPE_KLINE, OKX, "BTC-USDT", callback)
 
@@ -25,6 +28,8 @@ def consume():
 
 
 if __name__ == '__main__':
-    quant.initialize("./config.json")
+    config = Config()
+    config.loads("./config.json")
+    quant.initialize(config)
     consume()
     quant.start()

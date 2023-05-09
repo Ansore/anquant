@@ -4,21 +4,20 @@ import zlib
 
 import aiohttp
 
-from anquant.tasks import SingleTask
 from anquant.utils import logger
-from anquant.config import config
 from anquant.heartbeat import heartbeat
 from anquant.utils.locker import async_method_locker
 
 
 class WebSocket:
 
-    def __init__(self, url=None, check_conn_interval=10, send_hb_interval=10):
+    def __init__(self, url=None, check_conn_interval=10, send_hb_interval=10, proxy=None):
         self._url = url
         self._ws = None
         self._check_conn_interval = check_conn_interval
         self._send_hb_interval = send_hb_interval
         self.heartbeat_msg = None
+        self._proxy = proxy
 
     def initialize(self):
         heartbeat.register(self._check_connection, self._check_conn_interval)
@@ -27,7 +26,7 @@ class WebSocket:
 
     async def _connect(self):
         logger.info("url:", self._url, caller=self)
-        proxy = config.proxy
+        proxy = self._proxy
         session = aiohttp.ClientSession()
         try:
             self._ws = await session.ws_connect(self._url, proxy=proxy)

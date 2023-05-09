@@ -7,7 +7,6 @@ import json
 import time
 from urllib.parse import urljoin
 
-from anquant.config import config
 from anquant.constant import *
 from anquant.tasks import SingleTask
 from anquant.event import EventKline, EventTrade, EventOrderbook, EventTicker
@@ -81,12 +80,13 @@ class OkxRestAPI:
     URI_GET_POSITION = "/api/v5/account/positions"
     URI_SET_LEVERAGE = "/api/v5/account/set-leverage"
 
-    def __init__(self, host, access_key, secret_key, passphrase, simulated=False):
+    def __init__(self, host, access_key, secret_key, passphrase, simulated=False, proxy=None):
         self._host = host
         self._access_key = access_key
         self._secret_key = secret_key
         self._passphrase = passphrase
         self._simulated = simulated
+        self._proxy = proxy
 
     async def request(self, method, uri, params=None, body=None, headers=None, auth=False):
         if params:
@@ -244,7 +244,8 @@ class OkxTrade(WebSocket):
 
     def __init__(self, account, strategy, host=None, wss=None, access_key=None, secret_key=None, passphrase=None,
                  simulated=False, assets_update_callback=None, orders_update_callback=None,
-                 position_update_callback=None):
+                 position_update_callback=None, proxy=None):
+        self._proxy = proxy
         self._account = account
         self._strategy = strategy
         self._platform = OKX
@@ -261,12 +262,13 @@ class OkxTrade(WebSocket):
         else:
             self._wss = wss if wss else "wss://ws.okx.com:8443/ws/v5/private"
 
-        super(OkxTrade, self).__init__(self._wss, send_hb_interval=5)
+        super(OkxTrade, self).__init__(self._wss, check_conn_interval=10, send_hb_interval=5, proxy=self._proxy)
         self.heartbeat_msg = "ping"
         self._orders = {}
         self._assets = {}
         self._positions = {}
-        self._rest_api = OkxRestAPI(self._host, self._access_key, self._secret_key, self._passphrase, self._simulated)
+        self._rest_api = OkxRestAPI(self._host, self._access_key, self._secret_key, self._passphrase, self._simulated,
+                                    self._proxy)
         self.initialize()
 
     @property
@@ -477,21 +479,21 @@ class OkxTrade(WebSocket):
 
 
 class OkxMarket(WebSocket):
-    def __init__(self, wss=None, simulated=False, subscribes=None):
+    def __init__(self, platform_configs, wss=None, simulated=False, subscribes=None):
         self._platform = OKX
         self._subscribes = subscribes
         self._simulate = simulated
         self._wss = wss
         self.heartbeat_msg = "ping"
         super(OkxMarket, self).__init__(self._wss)
-        # self.initialize()
+        self.load_configs(platform_configs)
 
-    def load_configs(self):
-        market_config = config.platforms.get(self._platform).get("market")
+    def load_configs(self, platform_configs):
+        market_config = platform_configs.get("market")
         if market_config is None:
             logger.error("config file error!")
             exit(0)
-        self._simulate = config.platforms.get(self._platform).get("simulate", False)
+        self._simulate = platform_configs.get("simulate", False)
         self._subscribes = list(market_config.get("subscribes"))
         if self._simulate:
             self._wss = market_config.get("wss", "wss://wspap.okx.com:8443/ws/v5/public?brokerId=999")

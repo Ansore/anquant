@@ -1,7 +1,6 @@
 # -*- coding:utf-8 -*-
 import asyncio
 
-from anquant.config import config
 from anquant.utils import logger
 from anquant.utils import tools
 
@@ -15,15 +14,17 @@ class HeartBeat:
         self._print_interval = 0
         self._broadcast_interval = 0
         self._tasks = {}
+        self.server_id = None
 
     @property
     def count(self):
         return self._count
 
-    def load_configs(self):
-        self._interval = config.heartbeat.get("interval", 1)
-        self._print_interval = config.heartbeat.get("print_interval", 0)
-        self._broadcast_interval = config.heartbeat.get("broadcast", 0)
+    def load_configs(self, server_id, heartbeat_config):
+        self.server_id = server_id
+        self._interval = heartbeat_config.get("interval", 1)
+        self._print_interval = heartbeat_config.get("print_interval", 0)
+        self._broadcast_interval = heartbeat_config.get("broadcast", 0)
 
     def ticker(self):
         self._count += 1
@@ -80,7 +81,7 @@ class HeartBeat:
         :return:
         """
         from anquant.event import EventHeartbeat
-        EventHeartbeat(config.server_id, self.count).publish()
+        EventHeartbeat(self.server_id, self.count).publish()
 
 
 heartbeat = HeartBeat()

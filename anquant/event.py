@@ -1,6 +1,5 @@
 # -*— coding:utf-8 -*-
 from anquant.asset import Asset
-from anquant.config import config
 from anquant.event_engine import Event
 from anquant.market import Kline, Trade, Orderbook, Ticker
 
@@ -52,7 +51,7 @@ class EventTrade(Event):
         name = "EVENT_TRADE"
         exchange = "Trade"
         routing_key = "{p}.{s}".format(p=trade.platform, s=trade.symbol)
-        queue = "{sid}.{ex}.{rk}".format(sid=config.server_id, ex=exchange, rk=routing_key)
+        queue = "{ex}.{rk}".format(ex=exchange, rk=routing_key)
         super(EventTrade, self).__init__(name, exchange, queue, routing_key, data=trade.data)
 
     def parse(self):
@@ -65,7 +64,7 @@ class EventOrderbook(Event):
         name = "EVENT_ORDERBOOK"
         exchange = "Orderbook"
         routing_key = "{p}.{s}".format(p=orderbook.platform, s=orderbook.symbol)
-        queue = "{sid}.{ex}.{rk}".format(sid=config.server_id, ex=exchange, rk=routing_key)
+        queue = "{ex}.{rk}".format(ex=exchange, rk=routing_key)
         super(EventOrderbook, self).__init__(name, exchange, queue, routing_key, data=orderbook.data)
 
     def parse(self):
@@ -83,7 +82,7 @@ class EventKline(Event):
         name = "EVENT_KLINE"
         exchange = "Kline"
         routing_key = "{p}.{s}".format(p=kline.platform, s=kline.symbol)
-        queue = "{sid}.{ex}.{rk}".format(sid=config.server_id, ex=exchange, rk=routing_key)
+        queue = "{ex}.{rk}".format(ex=exchange, rk=routing_key)
         super(EventKline, self).__init__(name, exchange, queue, routing_key, data=kline.data)
 
     def parse(self):
@@ -96,7 +95,7 @@ class EventTicker(Event):
         name = "EVENT_TICKER"
         exchange = "Ticker"
         routing_key = "{p}.{s}".format(p=ticker.platform, s=ticker.symbol)
-        queue = "{sid}.{ex}.{rk}".format(sid=config.server_id, ex=exchange, rk=routing_key)
+        queue = "{ex}.{rk}".format(ex=exchange, rk=routing_key)
         super(EventTicker, self).__init__(name, exchange, queue, routing_key, data=ticker.data)
 
     def parse(self):
@@ -109,9 +108,7 @@ class EventAsset(Event):
         name = "EVENT_ASSET"
         exchange = "Asset"
         routing_key = "{platform}.{account}".format(platform=asset.platform, account=asset.account)
-        queue = "{server_id}.{exchange}.{routing_key}".format(server_id=config.server_id,
-                                                              exchange=exchange,
-                                                              routing_key=routing_key)
+        queue = "{exchange}.{routing_key}".format(exchange=exchange, routing_key=routing_key)
         super(EventAsset, self).__init__(name, exchange, queue, routing_key, data=asset.data)
 
     def parse(self):

@@ -1,12 +1,12 @@
 # -*— coding:utf-8 -*-
 import json
 
-from anquant.utils import logger
+from anquant.utils import logger, tools
 
 
 class Config:
 
-    def __init__(self):
+    def __init__(self, config_file=None):
         self.server_id = None
         self.run_time_update = False
         self.log = {}
@@ -17,6 +17,8 @@ class Config:
         self.heartbeat = {}
         self.service = {}
         self.proxy = {}
+        if config_file is not None:
+            self.loads(config_file)
 
     def loads(self, config_file=None):
         configures = {}
@@ -34,7 +36,7 @@ class Config:
         self.update(configures)
 
     def update(self, update_fields):
-        self.server_id = update_fields.get("SERVER_ID")
+        self.server_id = update_fields.get("SERVER_ID", tools.get_uuid1())
         self.run_time_update = update_fields.get("RUN_TIME_UPDATE", False)
         self.log = update_fields.get("LOG", {})
         self.rabbitmq = update_fields.get("RABBITMQ", None)
@@ -63,4 +65,3 @@ class Config:
         logger.info("config update success!", caller=self)
 
 
-config = Config()

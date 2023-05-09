@@ -4,7 +4,6 @@ from urllib.parse import urlparse
 
 import aiohttp
 
-from anquant.config import config
 from anquant.utils import logger
 
 
@@ -25,8 +24,8 @@ class AsyncHttpRequests(object):
     async def fetch(cls, method, url, params=None, body=None,
                     data=None, headers=None, timeout=30, **kwargs):
         session = cls._get_session(url)
-        if not kwargs.get("proxy"):
-            kwargs["proxy"] = config.proxy
+        # if not kwargs.get("proxy"):
+        #     kwargs["proxy"] = config.proxy
         try:
             if method == "GET":
                 response = await session.get(url, params=params, headers=headers,

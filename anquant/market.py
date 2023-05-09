@@ -102,6 +102,7 @@ class Trade:
     @property
     def data(self):
         d = {
+            "server_id": self.server_id,
             "platform": self.platform,
             "symbol": self.symbol,
             "action": self.action,
@@ -129,8 +130,8 @@ class Trade:
 
 
 class Kline:
-    def __init__(self, platform=None, symbol=None, open=None, high=None, low=None, close=None, volume=None,
-                 timestamp=None, kline_type=None):
+    def __init__(self, platform=None, symbol=None, open=None, high=None, low=None, close=None,
+                 volume=None, timestamp=None, kline_type=None):
 
         self.platform = platform
         self.symbol = symbol

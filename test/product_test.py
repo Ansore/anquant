@@ -1,8 +1,8 @@
 from anquant import quant
-from anquant.config import config
 from anquant.constant import OKX
 from anquant.platform.okx import OkxMarket
 from anquant.utils import logger
+from anquant.config import Config
 
 # def load_market(platform):
 #     if platform == OKX:
@@ -17,6 +17,7 @@ from anquant.utils import logger
 
 
 if __name__ == '__main__':
-    quant.initialize("./config.json")
-    OkxMarket(OKX).load_configs().initialize()
+    config = Config("./config.json")
+    quant.initialize(config)
+    OkxMarket(config.platforms.get(OKX)).initialize()
     quant.start()

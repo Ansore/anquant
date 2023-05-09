@@ -4,7 +4,6 @@ import json
 
 import aioamqp
 
-from anquant.config import config
 from anquant.tasks import LoopTask, SingleTask
 from anquant.utils import logger
 from anquant.utils.locker import async_method_locker
@@ -85,11 +84,11 @@ class Event:
 
 
 class EventEngine:
-    def __init__(self):
-        self._host = config.rabbitmq.get("host", "127.0.0.1")
-        self._port = config.rabbitmq.get("port", 5672)
-        self._username = config.rabbitmq.get("username", "guest")
-        self._password = config.rabbitmq.get("password", "guest")
+    def __init__(self, rabbitmq_config):
+        self._host = rabbitmq_config.get("host", "127.0.0.1")
+        self._port = rabbitmq_config.get("port", 5672)
+        self._username = rabbitmq_config.get("username", "guest")
+        self._password = rabbitmq_config.get("password", "guest")
         self._protocol = None
         self._channel = None
         self._connected = False
