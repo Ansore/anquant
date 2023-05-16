@@ -1,16 +1,16 @@
 from anquant import quant, constant
-from anquant.config import config
 from anquant.constant import OKX
 from anquant.market import Market, Kline
 from anquant.order import ORDER_ACTION_BUY, ORDER_TYPE_LIMIT, ORDER_TYPE_MARKET, ORDER_ACTION_SELL
 from anquant.platform.okx import OkxMarket
 from anquant.tasks import SingleTask, LoopTask
 from anquant.trade import Trade
+from anquant.config import Config
 
 
 class MyStrategy:
 
-    def __init__(self):
+    def __init__(self, config):
         """ 初始化
         """
         self.strategy = "my_strategy"
@@ -20,19 +20,21 @@ class MyStrategy:
         self.access_key = self.account.get("access_key")
         self.secret_key = self.account.get("secret_key")
         self.passphrase = self.account.get("passphrase")
-        self.name = config.strategy
-        self.trade = Trade(strategy=self.strategy, platform=self.platform, access_key=self.access_key,
-                           secret_key=self.secret_key, passphrase=self.passphrase, simulated=self.simulated,
+        self.trade = Trade(platform=self.platform, strategy=self.strategy, account=self.account,
+                           assets_update_callback=self.assets_update_callback,
                            orders_update_callback=self.orders_update_callback,
                            position_update_callback=self.position_update_callback)
-        # SingleTask.call_later(self.testStrategy, 5)
+        # SingleTask.call_later(self.buy_order, 5)
         # SingleTask.call_later(self.sell_order, 5)
         # SingleTask.call_later(self.display_info, 3)
-        LoopTask.register(self.display_info, 3)
+        # LoopTask.register(self.display_info, 3)
 
     async def orders_update_callback(self, orders):
         print("orders_update_callback", orders)
         # pass
+
+    async def assets_update_callback(self, assets):
+        print("assets_update_callback", assets)
 
     async def position_update_callback(self, positions):
         print("position_update_callback", positions)
@@ -47,16 +49,16 @@ class MyStrategy:
 
     async def sell_order(self):
         # order_id, error = await self.trade.create_order("BAL-USDT", ORDER_ACTION_SELL, 52, 3.2, ORDER_TYPE_MARKET)
-        order_id, error = await self.trade.create_order("ADA-USDT-SWAP", ORDER_ACTION_SELL, 52, 1, ORDER_TYPE_MARKET)
+        order_id, error = await self.trade.create_order("BTC-USDT", ORDER_ACTION_SELL, 52, 1, ORDER_TYPE_MARKET)
         if error:
             print("----revoke_o error, ", error)
             return
         print("#######testStrategy----sell order success")
 
-    async def testStrategy(self):
+    async def buy_order(self):
         print("******testStrategy")
         # order_id, error = await self.trade.create_order("BAL-USDT", ORDER_ACTION_BUY, 52, 10, ORDER_TYPE_MARKET)
-        order_id, error = await self.trade.create_order("ADA-USDT-SWAP", ORDER_ACTION_BUY, 52, 10, ORDER_TYPE_MARKET)
+        order_id, error = await self.trade.create_order("BTC-USDT", ORDER_ACTION_BUY, 27700, 1.13, ORDER_TYPE_MARKET)
         if error:
             print("----testStrategy create_order error, ", error)
             return
@@ -78,7 +80,8 @@ def consume():
 
 
 if __name__ == '__main__':
-    quant.initialize("./config.json")
-    # MyStrategy()
+    config = Config("./config.json")
+    quant.initialize(config)
+    MyStrategy(config)
     # consume()
     quant.start()

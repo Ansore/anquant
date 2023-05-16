@@ -6,6 +6,9 @@ from anquant.utils import logger, tools
 
 class Config:
 
+    class Platform:
+        pass
+
     def __init__(self, config_file=None):
         self.server_id = None
         self.run_time_update = False

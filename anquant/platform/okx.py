@@ -127,8 +127,8 @@ class OkxRestAPI:
         info = {
             "instId": symbol,
             "lever": str(lever),
-            "mgn_mode": mgn_mode,
-            "position_side": position_side
+            "mgnMode": mgn_mode,
+            "posSide": position_side
         }
         result, error = await self.request("POST", self.URI_SET_LEVERAGE, body=info, auth=True)
         return result, error
@@ -159,7 +159,7 @@ class OkxRestAPI:
             else:
                 logger.error("action error! action:", action, caller=self)
                 return None, "action error!"
-        elif inst_type in [ORDER_INST_TYPE_PERPETUAL, ORDER_INST_TYPE_MARGIN, ORDER_INST_TYPE_OPTIONS]:
+        elif inst_type in [ORDER_INST_TYPE_SWAP, ORDER_INST_TYPE_MARGIN, ORDER_INST_TYPE_OPTIONS]:
             if trade_mode == ORDER_MARGIN_TYPE_ISOLATED:
                 info["tdMode"] = "isolated"
             elif trade_mode == ORDER_MARGIN_TYPE_CROSS:
@@ -242,22 +242,21 @@ class OkxRestAPI:
 
 class OkxTrade(WebSocket):
 
-    def __init__(self, account, strategy, host=None, wss=None, access_key=None, secret_key=None, passphrase=None,
-                 simulated=False, assets_update_callback=None, orders_update_callback=None,
-                 position_update_callback=None, proxy=None):
+    def __init__(self, strategy, account, host=None, wss=None,  assets_update_callback=None,
+                 orders_update_callback=None, position_update_callback=None, proxy=None):
         self._proxy = proxy
-        self._account = account
+        self._account = account.get("name")
         self._strategy = strategy
         self._platform = OKX
         self._host = host if host else "https://www.okx.com"
-        self._access_key = access_key
-        self._secret_key = secret_key
-        self._passphrase = passphrase
-        self._simulated = simulated
+        self._access_key = account.get("access_key")
+        self._secret_key = account.get("secret_key")
+        self._passphrase = account.get("passphrase")
+        self._simulated = account.get("simulate")
         self._assets_update_callback = assets_update_callback
         self._orders_update_callback = orders_update_callback
         self._position_update_callback = position_update_callback
-        if simulated:
+        if self._simulated:
             self._wss = wss if wss else "wss://wspap.okx.com:8443/ws/v5/private?brokerId=9999"
         else:
             self._wss = wss if wss else "wss://ws.okx.com:8443/ws/v5/private"
@@ -274,6 +273,10 @@ class OkxTrade(WebSocket):
     @property
     def assets(self):
         return copy.copy(self._assets)
+
+    @property
+    def rest_api(self):
+        return self._rest_api
 
     @property
     def orders(self):
@@ -383,7 +386,7 @@ class OkxTrade(WebSocket):
     async def _update_positions(self, positions):
         for position_info in positions:
             posId = position_info["posId"]
-            utime = position_info["utime"]
+            utime = position_info["uTime"]
             instId = position_info["instId"]
             position_side = position_info["posSide"]
             pos = position_info["pos"]
@@ -412,7 +415,7 @@ class OkxTrade(WebSocket):
                 position = Position(**info)
                 self._positions[posId] = position
         if self._orders_update_callback:
-            SingleTask.run(self._orders_update_callback, self._positions)
+            SingleTask.run(self._position_update_callback, self._positions)
 
     async def _update_asset_balances(self, data):
         if len(data) <= 0:
@@ -487,6 +490,7 @@ class OkxMarket(WebSocket):
         self.heartbeat_msg = "ping"
         super(OkxMarket, self).__init__(self._wss)
         self.load_configs(platform_configs)
+        self.initialize()
 
     def load_configs(self, platform_configs):
         market_config = platform_configs.get("market")
